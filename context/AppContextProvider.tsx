@@ -29,7 +29,7 @@ const [flightOffers, setFlightOffers] = useState([]);
 
 const [selectedFlightOffer, setSelectedFlightOffer] = useState<any>(null);
 
-const [apiUrl, setApiUrl] = useState("http://127.0.0.1:8080");
+const [apiUrl, setApiUrl] = useState("http://13.217.13.159:8080");
 
 const [countriesData, setCountriesData] = useState([]);
 

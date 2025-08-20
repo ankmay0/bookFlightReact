@@ -17,7 +17,7 @@ export default function Offers() {
   
   // const tempFlights = 
   const handleBookFlight = (flightData: any) => {
-    // console.log("Booking flight with data: ", flightData);
+     console.log("Booking flight with data: ", flightData);
     if(flightData) {
       setSelectedFlightOffer(flightData);
       // navigation.navigate("../booking/index");

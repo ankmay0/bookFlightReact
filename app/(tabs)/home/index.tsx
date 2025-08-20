@@ -24,6 +24,7 @@ import { useRouter, useNavigation } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axiosInstance from '../../../config/axiosConfig';
 import { useAppContext } from '@/context/AppContextProvider';
+import { convertToQueryParams } from '@/utils/helper';
 
 const { width, height } = Dimensions.get('window');
 
@@ -124,24 +125,46 @@ export default function Home() {
     }));
   };
 
-  const handleSubmit = async () => {
-    setOffersLoading(true);
-    try {
-      if (!searchParams.from || !searchParams.to || !searchParams.departureDate || !searchParams.flightClass || searchParams.adults < 1) {
-        alert("Please fill all required fields");
-        return;
-      }
-      // Simulate API call - in a real app, you would use your actual API call here
-      setTimeout(() => {
-        setOffersLoading(false);
-        router.push("/offers");
-      }, 1500);
-    } catch (error) {
-      console.error("Error fetching flight offers: ", error);
-      alert("Failed to fetch flight offers. Please try again.");
-      setOffersLoading(false);
-    }
-  };
+ const handleSubmit = async () => {
+     setOffersLoading(true);
+     try {
+       if (!searchParams.from || !searchParams.to || !searchParams.departureDate || !searchParams.flightClass || searchParams.adults < 1) {
+         alert("Please fill all required fields");
+         return;
+       }
+       const params = {
+         originLocationCode: searchParams.from,
+         destinationLocationCode: searchParams.to,
+         departureDate: searchParams.departureDate,
+         adults: searchParams.adults,
+         children: searchParams.children,
+         infants: searchParams.infants,
+         travelClass: searchParams.flightClass.toUpperCase(),
+         currencyCode: "USD",
+         max: 20
+       }
+
+       if(searchParams.returnDate) {
+         Object.assign(params, {returnDate: searchParams.returnDate});
+       }
+
+       const queryparams = convertToQueryParams(params);
+        const response = await axiosInstance.get(`/flights/search?${queryparams}`);
+      // const response = await axios.get(`${apiUrl}/flights/search?${queryparams}`);
+       // console.log("Flight offers response: ", response);
+       setFlightOffers(response.data.flightsAvailable);
+       setTimeout(() => {
+         router.push("/offers");
+       }, 50);
+     } catch (error) {
+       console.error("Error fetching flight offers: ", error);
+       alert("Failed to fetch flight offers. Please try again.");
+       setOffersLoading(false);
+     } finally {
+       setOffersLoading(false);
+     }
+   }
+
 
   const toggleClassDropdown = () => {
     if (classDropdownVisible) {
