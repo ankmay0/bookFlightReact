@@ -2,183 +2,128 @@ import FlightCard from "@/components/FlightOfferCard";
 import { useAppContext } from "@/context/AppContextProvider";
 import { theme } from "@/themes/theme";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { router } from "expo-router";
-import { useMemo, useRef, useState } from "react";
-import { FlatList, StyleSheet, View, Dimensions } from "react-native";
-import { ActivityIndicator, Button, IconButton, Text, Chip } from "react-native-paper";
-import { LinearGradient } from "expo-linear-gradient";
-
-// Mock Expedia-like theme
-const expediaTheme = {
-  colors: {
-    primary: "#003087", // Expedia blue
-    primaryContainer: "#E6F0FA",
-    surface: "#FFFFFF",
-    background: "#F5F5F5",
-    onSurface: "#1A1A1A",
-    onSurfaceVariant: "#666666",
-    outline: "#E6E6E6",
-    accent: "#FFC107", // For badges like "Cheapest"
-  },
-  typography: {
-    titleLarge: { fontSize: 22, fontWeight: "bold" },
-    titleMedium: { fontSize: 16, fontWeight: "600" },
-    bodyMedium: { fontSize: 14 },
-    labelSmall: { fontSize: 12, fontWeight: "400" },
-  },
-};
+import { router, useNavigation } from "expo-router";
+import { useMemo, useRef } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { Icon, IconButton, Text } from "react-native-paper";
 
 export default function Offers() {
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ["30%", "60%", "90%"], []);
-  const { selectedFlightOffer, setSelectedFlightOffer, flightOffers, searchParams, fromInput, toInput } = useAppContext();
-  const [sortBy, setSortBy] = useState<"price" | "duration" | "stops">("price");
+  const snapPoints = useMemo(() => ["25%", "50%", "80%"], []);
 
+  const {selectedFlightOffer, setSelectedFlightOffer, apiUrl} = useAppContext();
+  const {flightOffers, searchParams, fromInput, toInput} = useAppContext();
+  const navigation = useNavigation();
+  
+  // const tempFlights = 
   const handleBookFlight = (flightData: any) => {
-    if (flightData) {
+    // console.log("Booking flight with data: ", flightData);
+    if(flightData) {
       setSelectedFlightOffer(flightData);
+      // navigation.navigate("../booking/index");
       router.push("/booking/flightDetails");
       bottomSheetRef.current?.expand();
+      console.log("bottomSheetRef: ", bottomSheetRef.current?.expand);
     }
   };
-
-  const handleSort = (criteria: "price" | "duration" | "stops") => {
-    setSortBy(criteria);
-    // Implement sorting logic here (e.g., sort flightOffers by price, duration, or stops)
-    // For simplicity, this is a placeholder
-    console.log(`Sorting by ${criteria}`);
-  };
-
-  const renderFlightCard = ({ item, index }: { item: any; index: number }) => {
-    const isCheapest = index === 0 && sortBy === "price"; // Highlight first flight if sorted by price
-    return (
-      <FlightCard
-        flightIndex={`flight-${index}`}
-        flightData={item}
-        handleSubmit={() => handleBookFlight(item)}
-        isCheapest={isCheapest}
-      />
-    );
-  };
-
+  // useEffect(() => {
+  //   // if(searchParams.from && searchParams.to) {
+  //     navigation.setOptions({
+  //       headerTitle: <View>
+  //         <Text>{searchParams.from}</Text>
+  //         <Text>{searchParams.to}</Text>
+  //       </View>
+  //     });
+  //   // }
+  // }, []);
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <LinearGradient colors={[expediaTheme.colors.primary, expediaTheme.colors.primaryContainer]} style={styles.header}>
-        <View style={styles.routeContainer}>
-          <View style={styles.routeCard}>
-            <Text style={styles.routeValue}>{searchParams.from}</Text>
-            <Text style={styles.routeArrow}>→</Text>
-            <Text style={styles.routeValue}>{searchParams.to}</Text>
-          </View>
-          <IconButton
-            icon="pencil"
-            size={24}
-            onPress={() => router.push("/(tabs)/home")}
-            accessibilityLabel="Edit flight search"
-            style={styles.editButton}
-          />
-        </View>
-        <Text style={styles.searchDetails}>
-          {searchParams.departureDate} | {searchParams.flightClass} |{" "}
-          {parseInt(searchParams.adults) + parseInt(searchParams.children) + parseInt(searchParams.infants)} passengers
-        </Text>
-      </LinearGradient>
-
-      {/* Filter Bar */}
-      <View style={styles.filterBar}>
-        <Chip
-          selected={sortBy === "price"}
-          onPress={() => handleSort("price")}
-          style={styles.chip}
-          textStyle={styles.chipText}
-        >
-          Price
-        </Chip>
-        <Chip
-          selected={sortBy === "duration"}
-          onPress={() => handleSort("duration")}
-          style={styles.chip}
-          textStyle={styles.chipText}
-        >
-          Duration
-        </Chip>
-        <Chip
-          selected={sortBy === "stops"}
-          onPress={() => handleSort("stops")}
-          style={styles.chip}
-          textStyle={styles.chipText}
-        >
-          Stops
-        </Chip>
-      </View>
-
-      {/* Flight List */}
-      {flightOffers.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>
-            No flights found for {fromInput} to {toInput} on {searchParams.departureDate}
-          </Text>
-          <Button
-            mode="outlined"
-            onPress={() => router.push("/(tabs)/home")}
-            style={styles.tryAgainButton}
-          >
-            Try Another Search
-          </Button>
-        </View>
-      ) : (
-        <FlatList
-          data={flightOffers}
-          renderItem={renderFlightCard}
-          keyExtractor={(item, index) => `flight-${index}`}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={<ActivityIndicator size="large" color={expediaTheme.colors.primary} />}
-          ListHeaderComponent={
-            <Text style={styles.resultsCount}>
-              {flightOffers.length} flight{flightOffers.length !== 1 ? "s" : ""} found
-            </Text>
-          }
-        />
-      )}
-
-      {/* Bottom Sheet */}
-      <BottomSheet ref={bottomSheetRef} index={-1} snapPoints={snapPoints} enablePanDownToClose>
-        <View style={styles.bottomSheetContent}>
-          <Text style={expediaTheme.typography.titleLarge}>Flight Details</Text>
-          {selectedFlightOffer ? (
-            <View style={styles.bottomSheetDetails}>
-              <Text style={expediaTheme.typography.bodyMedium}>
-                Airline: {selectedFlightOffer.trips[0].legs[0].carrierName}
-              </Text>
-              <Text style={expediaTheme.typography.bodyMedium}>
-                Price: {selectedFlightOffer.currencyCode} {selectedFlightOffer.totalPrice}
-              </Text>
-              <Text style={expediaTheme.typography.bodyMedium}>
-                Departure: {selectedFlightOffer.trips[0].legs[0].departureAirport} at{" "}
-                {new Date(selectedFlightOffer.trips[0].legs[0].departureDateTime).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </Text>
-              <Text style={expediaTheme.typography.bodyMedium}>
-                Arrival: {selectedFlightOffer.trips[0].legs.slice(-1)[0].arrivalAirport} at{" "}
-                {new Date(selectedFlightOffer.trips[0].legs.slice(-1)[0].arrivalDateTime).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </Text>
-              <Button
-                mode="contained"
-                onPress={() => router.push("/booking/flightDetails")}
-                style={styles.bookButton}
-              >
-                Continue to Booking
-              </Button>
+    <View
+      style={styles.container}
+    >
+      {/* <View style={{ height: 100 }}> */}
+        {/* <ImageBackground
+          source={require('@/assets/images/worldmap2.jpg')}
+          style={[ styles.background, { height: "100%", width: "100%"} ]}
+          resizeMode='cover'
+          resizeMethod='scale'
+        > */}
+        <View style={{display: 'flex', flexDirection: 'column', 
+          justifyContent: 'center', marginBottom: 10 }}>
+          <View style={{
+            borderWidth: 0,
+            flexDirection: 'row', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            padding: 0,
+            margin: 0,
+          }}>
+            <View style={[styles.routeCard, 
+              { borderWidth: 0, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between', 
+                flexDirection: 'row',
+                width: '30%', 
+              }]}>
+              <View>
+                <Text style={styles.routeValue}>{searchParams.from}</Text>
+              </View>
+              <View style={{flexDirection: 'column', alignItems: 'center'}}>
+                <Icon source="airplane" size={20} />
+                {/* <Text>{searchParams.departureDate}</Text> */}
+              </View>
+              <View>
+                <Text style={styles.routeValue}>{searchParams.to}</Text>
+              </View>
             </View>
-          ) : (
-            <Text style={expediaTheme.typography.bodyMedium}>Select a flight to view details</Text>
-          )}
+            {/* <View style={{ marginRight: 10 }}> */}
+              <IconButton
+                icon={"pencil-outline"}
+                size={20}
+                style={{ }}
+                // onPress={() => navigation.navigate("home/index")}
+                onPress={() => router.push("/(tabs)/home")}
+              />
+            {/* </View> */}
+          </View>
+          <View style={{ justifyContent: 'center', alignItems: 'center'}}>
+            <Text variant="labelSmall">
+              {searchParams.departureDate} | {' '}
+              {searchParams.flightClass} | {' '}
+              {parseInt(searchParams.adults + searchParams.children + searchParams.infants)} passengers
+            </Text>
+          </View>
+        </View>
+        {/* </ImageBackground> */}
+      {/* </View> */}
+      <ScrollView style={{ marginTop: 0}}>
+            {
+              flightOffers.length > 0 ? flightOffers.map((offer: any, index: number) => (
+                // tempFlights.flightsAvailable.length > 0 ? tempFlights.flightsAvailable.map((offer: any, index: number) => (
+              <View key={index} style={{ }}>
+                  <FlightCard
+                    flightIndex={`flight-${index}`}
+                    flightData={offer} 
+                    handleSubmit={() => handleBookFlight(offer)}
+                  />
+                </View>
+              )) : (
+                <View style={{ padding: 10, flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                  <Text style={{color: theme.colors.backdrop}}>No flight offers found for {fromInput} to {toInput} on {searchParams.departureDate}</Text>
+                </View>
+              )
+            }
+        {/* <Text style={styles.text}>offers screen</Text> */}
+      </ScrollView>
+
+      <BottomSheet 
+        ref={bottomSheetRef}
+        index={1}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+      >
+        <View>
+          <Text>Bottom Sheet</Text>
         </View>
       </BottomSheet>
     </View>
@@ -188,99 +133,33 @@ export default function Offers() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: expediaTheme.colors.background,
+    // justifyContent: "center",
+    // alignItems: "center",
+    // backgroundColor: "black"
   },
-  header: {
-    padding: 24,
-    paddingTop: 48,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+  background: {
+    flex: 1
   },
-  routeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+  text: {
+    color: "#fff"
   },
   routeCard: {
-    flexDirection: "row",
+    backgroundColor: theme.colors.transparent,
+    // borderRadius: 12,
+    // padding: 16,
+    marginVertical: 0,
+    marginHorizontal: 10,
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.1,
+    // shadowRadius: 4,
+    // elevation: 0,
     alignItems: "center",
-    backgroundColor: expediaTheme.colors.surface,
-    borderRadius: 12,
-    padding: 16,
-    flex: 1,
-    marginRight: 12,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   routeValue: {
-    ...expediaTheme.typography.titleMedium,
-    color: expediaTheme.colors.onSurface,
-  },
-  routeArrow: {
-    fontSize: 18,
-    marginHorizontal: 12,
-    color: expediaTheme.colors.onSurface,
-  },
-  searchDetails: {
-    ...expediaTheme.typography.labelSmall,
-    textAlign: "center",
-    marginTop: 12,
-    color: expediaTheme.colors.onSurfaceVariant,
-  },
-  filterBar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: 12,
-    backgroundColor: expediaTheme.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: expediaTheme.colors.outline,
-  },
-  chip: {
-    backgroundColor: expediaTheme.colors.surface,
-    borderRadius: 16,
-  },
-  chipText: {
-    ...expediaTheme.typography.bodyMedium,
-    color: expediaTheme.colors.onSurface,
-  },
-  listContent: {
-    padding: 16,
-  },
-  resultsCount: {
-    ...expediaTheme.typography.bodyMedium,
-    color: expediaTheme.colors.onSurface,
-    marginBottom: 12,
-    paddingHorizontal: 16,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
-  },
-  emptyText: {
-    ...expediaTheme.typography.bodyMedium,
-    color: expediaTheme.colors.onSurfaceVariant,
-    textAlign: "center",
-    marginBottom: 16,
-  },
-  tryAgainButton: {
-    borderRadius: 8,
-    borderColor: expediaTheme.colors.primary,
-  },
-  bottomSheetContent: {
-    padding: 24,
-  },
-  bottomSheetDetails: {
-    marginTop: 16,
-    gap: 12,
-  },
-  bookButton: {
-    marginTop: 16,
-    borderRadius: 8,
-    backgroundColor: expediaTheme.colors.primary,
+    fontSize: 16,
+    fontWeight: "bold",
+    color: theme.colors.darkGray,
+    marginBottom: 0,
   },
 });
