@@ -154,6 +154,8 @@ export default function Booking() {
                             genderOptions={genderOptions}
                             documentTypeOptions={documentTypeOptions}
                             countryCallingCodes={countryCallingCodes}
+                            onSubmit={handleBooking}
+                            loading={loading}
                         />
                     </List.Accordion>
                     <View style={{ padding: 10 }}>

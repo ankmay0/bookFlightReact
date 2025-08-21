@@ -29,7 +29,7 @@ const [flightOffers, setFlightOffers] = useState([]);
 
 const [selectedFlightOffer, setSelectedFlightOffer] = useState<any>(null);
 
-const [apiUrl, setApiUrl] = useState("http://13.217.13.159:8080");
+const [apiUrl, setApiUrl] = useState("http://127.0.0.1:8080");
 
 const [countriesData, setCountriesData] = useState([]);
 
@@ -64,7 +64,7 @@ const [travelers, setTravelers] = useState(
         try {
             const response = await axios.get("https://restcountries.com/v3.1/all?fields=name,cca2,flags,idd");
             const data = response.data;
-            console.log(response)
+            // console.log(response)
             setCountriesData(response.data);
         } catch (error) {
             console.error("Error fetching countries data:", error);

@@ -17,7 +17,8 @@ type AutocompleteInputProps = {
     inputLabel: string;
     inputValue: string;
     onInputChange: (text: string) => void;
-    onSelectOption: (option: OptionType) => void;
+    // onSelectOption: (option: OptionType) => void;
+    onSelectOption: (option: any) => void;
     loading?: boolean;
     icon?: string;
     inputStyle?: any;

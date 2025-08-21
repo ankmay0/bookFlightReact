@@ -1,80 +1,59 @@
 import { theme } from '@/themes/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, Tabs } from "expo-router";
-import { View, StyleSheet } from "react-native";
 
 export default function TabsLayout() {
     return (
         <Tabs screenOptions={{
             headerStyle: {
-                backgroundColor: '#fff',
-                elevation: 0,
-                shadowOpacity: 0,
-                borderBottomWidth: 1,
-                borderBottomColor: '#e0e0e0',
+                backgroundColor: theme.colors.primary,
+                                
             },
+            headerTintColor: theme.colors.disabled,
             headerTitleStyle: {
-                fontSize: 18,
-                fontWeight: '600',
-                color: '#1a73e8',
+                // fontFamily: 'Roboto',
+                fontSize: 30,
+                fontWeight: 'bold',
             },
             tabBarStyle: {
-                backgroundColor: '#fff',
-                borderTopWidth: 1,
-                borderTopColor: '#e0e0e0',
-                elevation: 8,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: -2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 4,
-                height: 60,
-                paddingBottom: 8,
-                paddingTop: 8,
+                backgroundColor: theme.colors.disabled,
+                borderTopWidth: 0,
+                elevation: 0,
             },
-            tabBarActiveTintColor: '#1a73e8',
-            tabBarInactiveTintColor: '#5f6368',
-            tabBarLabelStyle: {
-                fontSize: 12,
-                fontWeight: '500',
-                marginTop: 4,
-            },
+            tabBarActiveTintColor: theme.colors.primary,
+            tabBarInactiveTintColor: theme.colors.tertiary,
         }}>
             <Tabs.Screen
                 name="home/index"
                 options={{
-                    title: "Home",
-                    headerTitle: "Flight Booking",
+                    title: "FlightMate",
                     tabBarIcon: ({ color, size, focused }) => (
-                        <View style={focused ? styles.activeIconContainer : null}>
-                            <MaterialCommunityIcons
-                                name="home"
-                                color={focused ? '#1a73e8' : color}
-                                size={focused ? 26 : size}
-                            />
-                        </View>
+                        <MaterialCommunityIcons
+                            name="home"
+                            color={color}
+                            size={focused ? size + 6 : size }
+                        />
                     )
                 }}
             />
             <Tabs.Screen
                 name="offers/index"
                 options={{
-                    title: "Results",
-                    headerTitle: "Search Results",
+                    title: "Search Results",
+                    // tabBarIcon: "airplane",
                     tabBarIcon: ({ color, size, focused }) => (
-                        <View style={focused ? styles.activeIconContainer : null}>
-                            <MaterialCommunityIcons
-                                name="airplane"
-                                color={focused ? '#1a73e8' : color}
-                                size={focused ? 26 : size}
-                            />
-                        </View>
+                        <MaterialCommunityIcons
+                            name="airplane"
+                            color={color}
+                            size={focused ? size + 6 : size}
+                        />
                     ),
                     headerLeft: ({ tintColor }) => (
                         <MaterialCommunityIcons
                             name="arrow-left"
                             color={tintColor}
                             size={24}
-                            style={{ marginLeft: 16 }}
+                            style={{ marginLeft: 10, marginRight: 20 }}
                             onPress={() => {router.push('./home')}}
                         />
                     ),
@@ -84,31 +63,35 @@ export default function TabsLayout() {
                 name="search/index"
                 options={{
                     title: "Search",
-                    headerTitle: "Find Flights",
+                    // tabBarIcon: "airplane",
                     tabBarIcon: ({ color, size, focused }) => (
-                        <View style={styles.searchIconContainer}>
-                            <MaterialCommunityIcons 
-                                name="magnify"
-                                color="#fff" 
-                                size={28}
-                            />
-                        </View>
+                        <MaterialCommunityIcons 
+                            name="magnify"
+                            color={color} 
+                            size={focused ? size + 6 : size}
+                            style={{
+                                // marginBottom: 50,
+                                // borderWidth: 1,
+                                // borderColor: focused ? theme.colors.transparent : 'transparent',
+                                // backgroundColor: focused ? theme.colors.primaryGlass: 'transparent',
+                                // borderRadius: 50,
+                                // padding: focused ? 5 : 0,
+                            }} 
+                        />
                     ),
                 }}
             />
             <Tabs.Screen
                 name="account/index"
                 options={{
-                    title: "Profile",
-                    headerTitle: "My Account",
+                    title: "User Account",
+                    // tabBarIcon: "information",
                     tabBarIcon: ({ color, size, focused }) => (
-                        <View style={focused ? styles.activeIconContainer : null}>
-                            <MaterialCommunityIcons 
-                                name="account" 
-                                color={focused ? '#1a73e8' : color}
-                                size={focused ? 26 : size}
-                            />
-                        </View>
+                        <MaterialCommunityIcons 
+                            name="account" 
+                            color={color} 
+                            size={focused ? size + 6 : size} 
+                        />
                     ), 
                 }}
             />
@@ -116,43 +99,12 @@ export default function TabsLayout() {
                 name="about/index"
                 options={{
                     title: "About",
-                    headerTitle: "About Flight Booking",
-                    tabBarIcon: ({ color, size, focused }) => (
-                        <View style={focused ? styles.activeIconContainer : null}>
-                            <MaterialCommunityIcons 
-                                name="information" 
-                                color={focused ? '#1a73e8' : color}
-                                size={focused ? 26 : size}
-                            />
-                        </View>
+                    // tabBarIcon: "information",
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialCommunityIcons name="information" color={color} size={size} />
                     ), 
                 }}
             />
         </Tabs>
     )
 }
-
-const styles = StyleSheet.create({
-    activeIconContainer: {
-        backgroundColor: '#e8f0fe',
-        borderRadius: 20,
-        padding: 4,
-        marginBottom: 4,
-    },
-    searchIconContainer: {
-        backgroundColor: '#1a73e8',
-        borderRadius: 30,
-        padding: 8,
-        marginBottom: 4,
-        width: 50,
-        height: 50,
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#1a73e8',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 5,
-        marginTop: -10,
-    },
-});
